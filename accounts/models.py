@@ -23,3 +23,31 @@ def ensure_profile_exists(sender, **kwargs):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+
+
+class AccountType(models.Model):
+    title_account=models.CharField(max_length=100)
+    def __str__(self):
+        return self.title_account
+
+
+class Account(models.Model):
+    user_account    =models.ForeignKey(User, on_delete=models.CASCADE, related_name="accounts_user")
+    number_account  =models.CharField(max_length=20, default="")
+    type_account    =models.ForeignKey(AccountType, on_delete=models.SET_NULL, blank=True, null=True)
+    create_date     =models.DateField(auto_now_add=True)
+    ammount         =models.FloatField(default=1000, blank=True, null=True)
+
+    def __str__(self):
+        return 'Cuenta {}| Usuario {}'.format(self.id, self.user_account.username)
+ 
+
+class Transaction(models.Model):
+    user=               models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_transaction')
+    account=            models.ForeignKey(Account, on_delete=models.CASCADE, related_name='account_transaction')
+    ammount=            models.FloatField(blank=True, null=True) 
+    reference=          models.CharField(max_length=100, blank=True, null=True)
+    transaction_date=   models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+    def __str__(self):
+        return 'Transaction {}| Usuario {}'.format(self.id, self.user.username) 

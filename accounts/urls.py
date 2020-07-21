@@ -6,7 +6,9 @@ from django.conf import settings
 from rest_framework import routers
 from .views import (
     UserViewSet,
-    CustomAuthToken
+    CustomAuthToken,
+    MyUserView,
+    SignUpView
 )
 
 
@@ -15,7 +17,8 @@ router.register('users',UserViewSet)
 
 accounts = [
     path('', include(router.urls)),
-    #path('/my_user/', MyUser.as_view()),
+    path('my_user/', MyUserView.as_view()),
+    path('sign-up/',SignUpView.as_view()),
     path('api-auth/', include('rest_framework.urls')),
     path('api-token-auth/', CustomAuthToken.as_view()),
     url(
