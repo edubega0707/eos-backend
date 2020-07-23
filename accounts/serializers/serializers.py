@@ -11,23 +11,25 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model=User
         fields = '__all__'
-    # def create(self, validated_data):
-    #     password = validated_data.pop('password')
-    #     user = User.objects.create_user(**validated_data)
-    #     user.set_password(password) 
-    #     user.save() 
-    #     return user 
 
 class UserCortoSerializer(serializers.ModelSerializer):
     class Meta:
         model=User
         fields = ['id', 'username', 'first_name', 'last_name', 'email']
 
-
 class AccountTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model=AccountType
         fields='__all__'
 
+class AccountSerializerPost(serializers.ModelSerializer):
+    #type_account=AccountTypeSerializer(many=False, read_only=True)
+    class Meta:
+        model=Account
+        fields='__all__'
 
 
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Transaction
+        fields='__all__'

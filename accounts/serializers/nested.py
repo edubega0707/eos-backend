@@ -43,3 +43,17 @@ class UserDetailSerializer(serializers.ModelSerializer):
         'profile_usuario',
         'accounts_user'
         ]
+
+class AccountDetailSerializer(serializers.ModelSerializer):
+    user_account=UserProfileSerializer(read_only=True)
+    type_account=AccountTypeSerializer(many=False, read_only=True)
+    class Meta:
+        model=Account
+        fields=['id', 
+        'number_account', 
+        'create_date', 
+        'type_account',
+        'ammount',
+        'user_account']
+
+
