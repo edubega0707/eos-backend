@@ -5,7 +5,8 @@ from accounts.models import Profile,Account,Transaction
 from accounts.serializers.serializers import (
     UserSerializer,
     ProfileSerializer,
-    AccountTypeSerializer
+    AccountTypeSerializer,
+    TransactionSerializer
     )
     
 
@@ -20,7 +21,7 @@ class TransactionSerializer(serializers.ModelSerializer):
     account=AccountSerializer(many=False, read_only=True)
     class Meta:
         model=Transaction
-        fields=['id','user','account','ammount','reference','transaction_date']
+        fields=['id','user','account','ammount', 'total_account','reference','transaction_date']
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -47,6 +48,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 class AccountDetailSerializer(serializers.ModelSerializer):
     user_account=UserProfileSerializer(read_only=True)
     type_account=AccountTypeSerializer(many=False, read_only=True)
+    account_transaction=TransactionSerializer(many=True, read_only=True)
     class Meta:
         model=Account
         fields=['id', 
@@ -54,6 +56,7 @@ class AccountDetailSerializer(serializers.ModelSerializer):
         'create_date', 
         'type_account',
         'ammount',
-        'user_account']
+        'user_account',
+        'account_transaction']
 
 

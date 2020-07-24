@@ -101,7 +101,7 @@ class MyUserView(APIView):
 
 class TypeAccountsView(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated]
     queryset = AccountType.objects.all()
     serializer_class = AccountTypeSerializer
 
@@ -140,10 +140,26 @@ class DepositoView(APIView):
                 return Response({"error":"El deposito debe ser positivo"}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 account=Account.objects.get(id=account_id.id)
+                transaction = Transaction.objects.create(**deposito.validated_data) 
+                transaction.total_account=account.ammount+deposito_agregar
+                transaction.save()
+                transaction.refresh_from_db()
+
                 account.ammount=F('ammount')+deposito_agregar
                 account.save()
-                transaction = Transaction.objects.create(**deposito.validated_data) 
-                return Response(deposito.data, status=status.HTTP_201_CREATED)
+                return Response(
+                    {
+                        'user':transaction.user.id,
+                        'account':{
+                            'id':transaction.account.id,
+                            'number_account':transaction.account.number_account,
+                        },
+                        'ammount':transaction.ammount,
+                        'total_account':transaction.total_account,
+                        'reference':transaction.reference,
+                        'transaction_date':transaction.transaction_date,
+                    },
+                    status=status.HTTP_201_CREATED)
         return Response(deposito.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
@@ -154,6 +170,8 @@ class WithDrawView(APIView):
             deposito_retirar=retiro.validated_data['ammount']
             account_id=retiro.validated_data['account']
             account=Account.objects.get(id=account_id.id)
+
+
             if(deposito_retirar<0):
                 return Response({"error":"El deposito debe ser minimo 1 peso"}, status=status.HTTP_400_BAD_REQUEST)
             elif(deposito_retirar > account.ammount):

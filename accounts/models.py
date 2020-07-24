@@ -57,6 +57,7 @@ class Transaction(models.Model):
     account=            models.ForeignKey(Account, on_delete=models.CASCADE, related_name='account_transaction')
     type_transaction=   models.CharField(max_length=100, blank=True, null=True)
     ammount=            models.FloatField(blank=True, null=True) 
+    total_account=      models.FloatField(blank=True, null=True)
     reference=          models.CharField(max_length=100, blank=True, null=True)
     transaction_date=   models.DateTimeField(auto_now_add=True, blank=True, null=True)
 

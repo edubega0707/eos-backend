@@ -28,8 +28,13 @@ class AccountSerializerPost(serializers.ModelSerializer):
         model=Account
         fields='__all__'
 
+class AccountCortoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Account
+        fields=['id','number_account']
 
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model=Transaction
         fields='__all__'
+
