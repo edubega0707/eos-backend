@@ -131,6 +131,8 @@ from django.db.models import F
 from django.core import serializers
 
 class DepositoView(APIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
     def post(self, request, format=None):
         deposito = TransactionSerializer(data=request.data)
         if deposito.is_valid():
@@ -140,6 +142,7 @@ class DepositoView(APIView):
                 return Response({"error":"El deposito debe ser positivo"}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 account=Account.objects.get(id=account_id.id)
+
                 transaction = Transaction.objects.create(**deposito.validated_data) 
                 transaction.total_account=account.ammount+deposito_agregar
                 transaction.save()
@@ -164,22 +167,37 @@ class DepositoView(APIView):
         
 
 class WithDrawView(APIView):
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
     def post(self, request, format=None):
         retiro = TransactionSerializer(data=request.data)
         if retiro.is_valid():
             deposito_retirar=retiro.validated_data['ammount']
             account_id=retiro.validated_data['account']
             account=Account.objects.get(id=account_id.id)
-
-
             if(deposito_retirar<0):
                 return Response({"error":"El deposito debe ser minimo 1 peso"}, status=status.HTTP_400_BAD_REQUEST)
             elif(deposito_retirar > account.ammount):
                 return Response({"error":"El retiro es mayor a tu saldo"}, status=status.HTTP_400_BAD_REQUEST)
             else:
+                transaction = Transaction.objects.create(**retiro.validated_data) 
+                transaction.total_account=account.ammount-deposito_retirar
+                transaction.save()
+                transaction.refresh_from_db()
                 account.ammount=F('ammount')-deposito_retirar
                 account.save()
-                transaction = Transaction.objects.create(**retiro.validated_data) 
-                return Response(retiro.data, status=status.HTTP_201_CREATED)
+                return Response(
+                    {
+                        'user':transaction.user.id,
+                        'account':{
+                            'id':transaction.account.id,
+                            'number_account':transaction.account.number_account,
+                        },
+                        'ammount':transaction.ammount,
+                        'total_account':transaction.total_account,
+                        'reference':transaction.reference,
+                        'transaction_date':transaction.transaction_date,
+                    },
+                    status=status.HTTP_201_CREATED)
 
         return Response(retiro.errors, status=status.HTTP_400_BAD_REQUEST)
